@@ -117,10 +117,10 @@ class TreeContainer extends Component {
 const el = document.getElementById('tutorial');
 React.render(
   <div>
-    <strong>Issue:</strong>
+    <strong>Favorites:</strong>
     <TreeContainer>
       <div className='select-dropdown'>
-        Select Issue
+        Select Movie Characters
       </div>
     </TreeContainer>
   </div>, el);

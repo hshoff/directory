@@ -1,3 +1,6 @@
+![demo]('directory-demo.gif')
+
+```js
 [
   { "label": "Star Wars", "children": [
     { "label": "A New Hope", "children": [
@@ -17,4 +20,5 @@
     { "label": "Captain Kirk"},
     { "label": "Spock" }
   ] }
-];
+]
+```

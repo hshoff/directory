@@ -184,7 +184,7 @@ _react2['default'].render(_react2['default'].createElement(
   _react2['default'].createElement(
     'strong',
     null,
-    'Issue:'
+    'Favorites:'
   ),
   _react2['default'].createElement(
     TreeContainer,
@@ -192,7 +192,7 @@ _react2['default'].render(_react2['default'].createElement(
     _react2['default'].createElement(
       'div',
       { className: 'select-dropdown' },
-      'Select Issue'
+      'Select Movie Characters'
     )
   )
 ), el);
@@ -20060,20 +20060,23 @@ module.exports = require('./lib/React');
 
 },{"./lib/React":31}],159:[function(require,module,exports){
 module.exports=[
-  { "label": "one", "children": [
-    { "label": "subissue1", "children": [
-      { "label": "issue1" },
-      { "label": "issue2" },
-      { "label": "subissue1", "children": [
-        { "label": "something1" },
-        { "label": "something2" },
+  { "label": "Star Wars", "children": [
+    { "label": "A New Hope", "children": [
+      { "label": "Han Solo" },
+      { "label": "Chewbacca" },
+      { "label": "Skywalkers", "children": [
+        { "label": "Darth Vader" },
+        { "label": "Luke" },
+        { "label": "Princess Leia" },
       ] },
+    ] },
+    { "label": "The Empire Strikes Back", "children": [
+        {"label": "tauntaun"}
     ] }
   ] },
-  { "label": "two", "children": [
-    { "label": "issue1", "children": [] },
-    { "label": "issue2", "children": [] },
-    { "label": "issue3", "children": [] }
+  { "label": "Star Trek", "children": [
+    { "label": "Captain Kirk"},
+    { "label": "Spock" }
   ] }
 ];
 
