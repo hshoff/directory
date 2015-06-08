@@ -1,4 +1,4 @@
-![demo]('directory-demo.gif')
+![demo](/directory-demo.gif)
 
 ```js
 [
