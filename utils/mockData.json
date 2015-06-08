@@ -1,0 +1,17 @@
+[
+  { "label": "one", "children": [
+    { "label": "subissue1", "children": [
+      { "label": "issue1" },
+      { "label": "issue2" },
+      { "label": "subissue1", "children": [
+        { "label": "something1" },
+        { "label": "something2" },
+      ] },
+    ] }
+  ] },
+  { "label": "two", "children": [
+    { "label": "issue1", "children": [] },
+    { "label": "issue2", "children": [] },
+    { "label": "issue3", "children": [] }
+  ] }
+];
