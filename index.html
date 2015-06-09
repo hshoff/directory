@@ -3,6 +3,7 @@
   <meta charset=utf-8>
   <style>
     body {
+      font-family: sans-serif;
       background-color: #f0f0f0;
     }
 
@@ -15,6 +16,36 @@
       padding: 5px 10px;
       border: 1px solid gray;
       background-color: white;
+      cursor: pointer;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+              user-select: none;
+
+    }
+
+    .directory-selected {
+      margin-top: 5px;
+    }
+
+    .directory-selected-option {
+      margin-top: 5px;
+      padding: 5px 10px;
+      background-color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(33,33,33,0.4);
+      color: rgba(33,33,33,0.7);
+      font-size: 12px;
+    }
+
+    .directory-node:hover,
+    .directory-node-leaf:hover {
+      cursor: pointer;
+    }
+
+    .directory-node span,
+    .directory-node-leaf span {
+      -webkit-user-select: none;
+         -moz-user-select: none;
+              user-select: none;
     }
 
     .directory-node .directory-root {

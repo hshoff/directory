@@ -1,22 +1,14 @@
-import React, { Component, PropTypes } from 'react';
 import cx from 'classnames';
+import assign from 'object-assign';
+import React, { Component, PropTypes } from 'react';
+import alt from './alt';
 import mockData from './utils/mockData';
+import * as treeUtils from './utils/tree';
+import OptionStore from './stores/OptionStore';
+import SelectedOptionsStore from './stores/SelectedOptionsStore';
+import OptionActions from './actions/OptionActions';
+import SelectedOptionActions from './actions/SelectedOptionActions';
 
-
-function itemHasChildren(item) {
-  return item.children && !!item.children.length;
-}
-
-function itemIsLeaf(item) {
-  return !itemHasChildren(item);
-}
-
-function sort(data) {
-  return data.sort(function(a,b){
-    if (itemHasChildren(a)) return -1;
-    return 1;
-  });
-}
 
 class Node extends Component {
   constructor(props) {
@@ -24,26 +16,28 @@ class Node extends Component {
     this.state = { open: false };
   }
 
-  handleClick(e) {
+  handleClick(item, e) {
     e.stopPropagation();
-    this.setState({ open: !this.state.open });
-    this.props.onClick(this.state.open);
+    this.setState({ open: !this.state.open }, () => {
+      this.props.onClick(this.state.open, this.props.selected[item.label]);
+    });
   }
 
   render() {
-    const { onClick, item } = this.props;
-    const isLeaf = itemIsLeaf(item);
-    const icon = this.state.open ? '-' : '+';
+    const { onClick, item, selected } = this.props;
+    const isLeaf = treeUtils.itemIsLeaf(item);
+    const icon = this.state.open ? '--' : '+';
+    const isSelected = !!selected[item.label]
     const classes = cx({
       'directory-node': !isLeaf,
       'directory-node-leaf': isLeaf,
-      'directory-node-selected': isLeaf && this.state.open,
+      'directory-node-selected': isLeaf && isSelected,
     });
     return (
-      <li className={classes} onClick={this.handleClick.bind(this)}>
-        {itemIsLeaf(item) && <input type='checkbox' checked={this.state.open} />} {item.label} {itemHasChildren(item) && icon}
-        {itemHasChildren(item) && this.state.open &&
-          <Tree data={sort(item.children)} open={true} />}
+      <li className={classes} onClick={this.handleClick.bind(this, item)}>
+        {treeUtils.itemHasChildren(item) && icon} {treeUtils.itemIsLeaf(item) && <input type='checkbox' checked={isSelected} />} {item.label}
+        {treeUtils.itemHasChildren(item) && this.state.open &&
+          <Tree data={item.children} open={true} selected={this.props.selected} />}
       </li>
     );
   }
@@ -55,9 +49,13 @@ class Tree extends Component {
     this.state = { open: false };
   }
 
-  handleClick(item, open) {
-    if (itemIsLeaf(item)) {
-      console.log(`You clicked ${item.label} => selected: ${open}`)
+  handleClick(item, open, isSelected) {
+    if (treeUtils.itemIsLeaf(item)) {
+      if (!isSelected) {
+        SelectedOptionActions.addOption(item);
+      } else {
+        SelectedOptionActions.removeOption(item);
+      }
     }
   }
 
@@ -69,7 +67,8 @@ class Tree extends Component {
             <Node
               key={i}
               item={item}
-              onClick={this.handleClick.bind(null, item)} />
+              selected={this.props.selected}
+              onClick={this.handleClick.bind(this, item)} />
           );
         })}
       </ul>
@@ -81,7 +80,39 @@ class Tree extends Component {
     return (
       <div className='directory-container'>
         {open &&
-          this.renderNodes(data)}
+          this.renderNodes.call(this, data)}
+      </div>
+    );
+  }
+}
+
+class SelectedNodes extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  handleClick(item) {
+    SelectedOptionActions.removeOption(item);
+  }
+
+  handleClear() {
+    SelectedOptionActions.clearAllSelected();
+  }
+
+  render() {
+    const { selected } = this.props;
+    const selectedKeys = Object.keys(selected);
+    return (
+      <div className='directory-selected'>
+        {selectedKeys.map((k, i) => {
+          return (
+            <div key={i} onClick={this.handleClick.bind(this, selected[k])} className='directory-selected-option'>
+              {selected[k].label}
+            </div>
+          );
+        })}
+        <small>{selectedKeys.length ? selectedKeys.length : 0} selected</small>
+        {!!selectedKeys.length && <small onClick={this.handleClear} style={{float:'right'}}>Clear All</small>}
       </div>
     );
   }
@@ -90,37 +121,58 @@ class Tree extends Component {
 class TreeContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = { open: false, selected: [] };
+
+    this.state = assign(
+      OptionStore.getState(),
+      SelectedOptionsStore.getState(), {
+      open: false,
+    });
   }
 
-  toggleSelect() {
+  componentDidMount() {
+    OptionStore.listen(this.onChange.bind(this));
+    SelectedOptionsStore.listen(this.onChange.bind(this));
+  }
+
+  componentWillUnmount() {
+    OptionStore.unlisten(this.onChange.bind(this));
+    SelectedOptionsStore.unlisten(this.onChange.bind(this));
+  }
+
+  onChange(state) {
+    this.setState(state);
+  }
+
+  toggleOpen() {
     this.setState({ open: !this.state.open });
   }
-
   render() {
     return (
       <div className='directory-tree-container'>
-        <div onClick={this.toggleSelect.bind(this)}>
+        <div onClick={this.toggleOpen.bind(this)}>
           {this.props.children}
         </div>
-        <Tree data={sort(mockData)} open={this.state.open} />
-        {this.state.selected.map((item, i) => {
-          return (
-            <div key={i}>{item.label}</div>
-          );
-        })}
+        <Tree selected={this.state.selected} data={treeUtils.sort(mockData)} open={this.state.open} />
+        <SelectedNodes selected={this.state.selected} />
+      </div>
+    );
+  }
+}
+
+class Tutorial extends Component {
+  render() {
+    return (
+      <div>
+        <strong>Favorites:</strong>
+        <TreeContainer>
+          <div className='select-dropdown'>
+            Select Movie Characters
+          </div>
+        </TreeContainer>
       </div>
     );
   }
 }
 
 const el = document.getElementById('tutorial');
-React.render(
-  <div>
-    <strong>Favorites:</strong>
-    <TreeContainer>
-      <div className='select-dropdown'>
-        Select Movie Characters
-      </div>
-    </TreeContainer>
-  </div>, el);
+React.render(<Tutorial />, el);
